@@ -29,14 +29,18 @@ function verifyIfExistsAccount(request, response, next) {
   return next();
 }
 
-app.post("/account", (request, response) => {
-  const { cpf, name } = request.body;
-
+const createUser = (cpf, name) => {
   if (customers.some((customer) => cpf === customer.cpf)) {
     return response.status(400).json({ error: "Customer already exists!" });
   }
 
-  customers.push({ id: uuidv4(), name, cpf, statement: [] });
+  return customers.push({ id: uuidv4(), name, cpf, statement: [] });
+};
+
+app.post("/account", (request, response) => {
+  const { cpf, name } = request.body;
+
+  createUser(cpf, name);
 
   return response.status(201).send();
 });
@@ -121,3 +125,5 @@ app.get("/balance", verifyIfExistsAccount, (request, response) => {
 });
 
 app.listen(3333);
+
+module.exports = { createUser, customers };
